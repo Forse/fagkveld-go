@@ -1,0 +1,48 @@
+
+.reveal .slides p {
+    text-align: left;
+    margin-left: 50px;
+}
+.reveal .slides h1, .reveal .slides h2, .reveal .slides h3 {
+    text-align: left;
+    margin-left: 50px;
+}
+.reveal .slides p.small {
+    font-size: 22px;
+}
+.reveal .slides section {
+    text-align: left;
+}
+.reveal .slides section .center {
+    text-align: center;
+}
+.reveal ul {
+    display: block;
+}
+.reveal ol {
+    display: block;
+}
+
+.reveal section pre {
+    font-size: 0.50em;
+}
+
+.reveal section pre.xs {
+    font-size: 0.25em;
+}
+
+.reveal section pre.sm {
+    font-size: 0.3em;
+}
+
+.reveal section pre.md {
+    font-size: 0.5em;
+}
+
+.reveal section pre.lg {
+    font-size: 0.6em;
+}
+
+.reveal section pre.xl {
+    font-size: 0.7em;
+}

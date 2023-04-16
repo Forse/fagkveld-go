@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fagkveld i Go</title>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1>Fagkveld i Go</h1>
+          <pre>
+            <code data-trim data-noescape class="language-golang">
+              func main() {
+                  fmt.Println("Hello, world!")
+              }
+            </code>
+          </pre>
+        </section>
+
+        <section>
+          <h2>Agenda</h2>
+          <ul>
+            <li>Intro</li>
+            <li>Litt i dybden</li>
+            <li>Hvorfor Go?</li>
+            <li>Bruksområde</li>
+            <li>Go vs X</li>
+            <li>Når bør <i>vi</i> bruke Go?</li>
+            <li>Oppsett av Go</li>
+            <li>Ressurser</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Intro</h2>
+          <section>
+            <ul>
+              <li>Startet hos Google av Robert Griesemer, Rob Pike og Ken Thompson</li>
+              <li>Design påbegynt 2007, annonsert offentlig 2009, v1.0 i 2012</li>
+              <li>Go er
+                <ul>
+                  <li>statically typed</li>
+                  <li>simple/easy to learn</li>
+                  <li>built for concurrency</li>
+                  <li>simple to deploy</li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <h3>Litt i dybden...</h3>
+        </section>
+
+        <section>
+          <h3>Type-system</h3>
+          <section>
+            <p>Funskjoner</p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                func add(a int, b int) int {
+                    return a + b
+                }
+              </code>
+            </pre>
+          </section>
+          <section>
+            <p>Structs</p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                type operation struct {
+                    a int
+                    b int
+                }
+              </code>
+            </pre>
+          </section>
+          <section>
+            <p>Constructor finnes ikke</p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                func newOperation(a int, b int) *operation {
+                    return &operation{
+                        a: a,
+                        b: b,
+                    }
+                }
+              </code>
+            </pre>
+            <p class="small">* = pointer</p>
+            <p class="small">& = ta referanse</p>
+          </section>
+          <section>
+            <p>camelCase = unexported</p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers="1" class="language-golang">
+                func newOperation(a int, b int) *operation {
+                    return &operation{
+                        a: a,
+                        b: b,
+                    }
+                }
+              </code>
+            </pre>
+            <p class="small">Unexported = kan bare brukes <b>internt</b> i en <b>package</b></p>
+          </section>
+          <section>
+            <p>PascalCase = exported</p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers="1" class="language-golang">
+                func NewOperation(a int, b int) *operation {
+                    return &operation{
+                        a: a,
+                        b: b,
+                    }
+                }
+              </code>
+            </pre>
+            <p class="small">Exported = kan brukes av <b>eksterne</b> <b>packages</b></p>
+          </section>
+          <section>
+            <p>Unexported struct, exported functions</p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers="1,13" class="language-golang">
+                type operation struct {
+                    a int
+                    b int
+                }
+
+                func NewOperation(a int, b int) *operation {
+                    return &operation{
+                        a: a,
+                        b: b,
+                    }
+                }
+
+                func (o *operation) Add() int {
+                    return o.a + o.b
+                }
+              </code>
+            </pre>
+            <p class="small"><b><code>operation.Add</code></b> kan brukes av eksterne, men feltene er skjulte</p>
+          </section>
+          <section>
+            <p>Pointer receivers</p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers="8" class="language-golang">
+                func NewOperation(a int, b int) *operation {
+                    return &operation{
+                        a: a,
+                        b: b,
+                    }
+                }
+
+                func (o *operation) Add() int {
+                    return o.a + o.b
+                }
+              </code>
+            </pre>
+            <p class="small"><b><code>(o *operation)</code></b> kalles en <b>pointer</b> receiver</p>
+          </section>
+          <section>
+            <p>Value receivers</p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers="8" class="language-golang">
+                func NewOperation(a int, b int) *operation {
+                    return &operation{
+                        a: a,
+                        b: b,
+                    }
+                }
+
+                func (o operation) Add() int {
+                    return o.a + o.b
+                }
+              </code>
+            </pre>
+            <p class="small"><b><code>(o operation)</code></b> kalles en <b>value</b> receiver</p>
+            <p class="small"><b><code>Add</code></b> vil få en kopi av en <b><code>operation</code></b></p>
+          </section>
+          <section>
+            <p>Interfaces</p>
+            <pre class="sm">
+              <code data-trim data-noescape data-line-numbers="1-6|8-13|15-23|*" class="language-golang">
+                type Addition interface {
+                    Add() int
+                }
+                type Subtraction interface {
+                    Subtract() int
+                }
+
+                func (o *operation) Add() int {
+                    return o.a + o.b
+                }
+                func (o *operation) Subtract() int {
+                    return o.a - o.b
+                }
+                // --------------------------------
+                // En annen package
+                func main() {
+                    op := NewOperation(2, 1) // *operation
+                    ComputeSumAndDiff(op, op)
+                }
+                // Interface type arguments er alltid pointers
+                func ComputeSumAndDiff(o1 Addition, o2 Subtraction) (int, int) {
+                    return o1.Add(), o2.Subtract()
+                }
+              </code>
+            </pre>
+            <p class="small">Implementasjon av interface er <b>implisitt</b></p>
+          </section>
+          <section>
+            <p>Explicit interface implementasjon?</p>
+            <pre class="sm">
+              <code data-trim data-noescape data-line-numbers="15,16" class="language-golang">
+                type Addition interface {
+                    Add() int
+                }
+                type Subtraction interface {
+                    Subtract() int
+                }
+
+                func (o *operation) Add() int {
+                    return o.a + o.b
+                }
+                func (o *operation) Subtract() int {
+                    return o.a - o.b
+                }
+
+                var _ Addition = (*operation)(nil)
+                var _ Subtraction = (*operation)(nil)
+              </code>
+            </pre>
+            <p class="small">Variabel i globalt scope med discard får compileren til å verifisere interface implementasjon</p>
+          </section>
+          <section>
+            <p>Generics</p>
+            <pre class="sm">
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                // This package is 0.0.0 - experimental
+                import "golang.org/x/exp/constraints"
+
+                type Number interface {
+                    constraints.Integer | constraints.Float
+                }
+
+                type operation[T Number] struct {
+                    a T
+                    b T
+                }
+
+                func NewOperation[T Number](a T, b T) *operation[T] {
+                    return &operation[T]{
+                        a: a,
+                        b: b,
+                    }
+                }
+              </code>
+            </pre>
+            <p class="small">Generics ble introdusert i Go <b>1.18</b></p>
+          </section>
+          <section>
+            <p>Generics</p>
+            <pre class="sm">
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                // ...
+
+                type Addition[T Number] interface {
+                    Add() T
+                }
+                type Subtraction[T Number] interface {
+                    Subtract() T
+                }
+
+                func (o *operation[T]) Add() T {
+                    return o.a + o.b
+                }
+                func (o *operation[T]) Subtract() T {
+                    return o.a - o.b
+                }
+
+                var _ Addition[int] = (*operation[int])(nil)
+                var _ Subtraction[int] = (*operation[int])(nil)
+              </code>
+            </pre>
+          </section>
+          <section>
+            <p>Generics</p>
+            <pre class="sm">
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                // ...
+                // --------------------------------
+                // En annen package
+                func main() {
+                    op := NewOperation(2, 1)   // *operation
+                    ComputeSumAndDiff[int](op) // second type parameter is inferred
+                }
+
+                // Addition og Subtraction blir "embedded" i AdditionAndSubtraction
+                type AdditionAndSubtraction[T Number] interface {
+                    Addition[T]
+                    Subtraction[T]
+                }
+
+                func ComputeSumAndDiff[T Number, O AdditionAndSubtraction[T]](o O) (T, T) {
+                    return o.Add(), o.Subtract()
+                }
+              </code>
+              <p class="small">I motsetning til C#, kan compileren gjør delvis inference av generic type parameters</p>
+            </pre>
+          </section>
+          <section>
+            <p>Packages</p>
+            <pre class="sm">
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                // Vi er inne i myrepo/internal/mypackage som eksempel
+                package mypackage
+
+                type operation struct {
+                    a int
+                    b int
+                }
+
+                func NewOperation(a int, b int) *operation {
+                    return &operation{
+                        a: a,
+                        b: b,
+                    }
+                }
+
+                func (o *operation) Add() int {
+                    return o.a + o.b
+                }
+              </code>
+            </pre>
+          </section>
+        </section>
+
+        <section>
+          <h2>Oppsett av go</h2>
+          <section>
+            <ul>
+              <li>Bruk Linux/Mac (jeg bruker WSL2 Ubuntu) og VSCode</li>
+              <li>Installer <a href="https://github.com/moovweb/gvm#installing">gvm</a></li>
+              <li>Installer Go v1.20</li>
+              <li>Installer VSCode extension for Go</li>
+            </ul>
+            <pre>
+              <code data-noescape class="language-bash">git clone git@github.com:Forse/fagkveld-go.git</code>
+            </pre>
+          </section>
+        </section>
+        <section>
+          <h2>Ressurser</h2>
+          <section>
+            <ul>
+              <li><a href="https://github.com/golang-standards/project-layout">Project layout</a> - "best practices" projectoppsett</li>
+              <li><a href="https://go.dev/learn/">Get Started</a> - go.dev offisiell ressurs</li>
+              <li><a href="https://gobyexample.com/">Go by Example</a> - eksempelbasert læring</li>
+              <li><a href="https://exercism.org/tracks/go">Go - Exercism</a> - exercism track med 140 oppgaver (interaktivt)</li>
+            </ul>
+          </section>
+        </section>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
