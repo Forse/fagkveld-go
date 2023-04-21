@@ -310,33 +310,8 @@
                     return o.Add(), o.Subtract()
                 }
               </code>
-              <p class="small">I motsetning til C#, kan compileren gjør delvis inference av generic type parameters</p>
             </pre>
-          </section>
-          <section>
-            <p>Packages</p>
-            <pre class="sm">
-              <code data-trim data-noescape data-line-numbers class="language-golang">
-                // Vi er inne i myrepo/internal/mypackage som eksempel
-                package mypackage
-
-                type operation struct {
-                    a int
-                    b int
-                }
-
-                func NewOperation(a int, b int) *operation {
-                    return &operation{
-                        a: a,
-                        b: b,
-                    }
-                }
-
-                func (o *operation) Add() int {
-                    return o.a + o.b
-                }
-              </code>
-            </pre>
+            <p class="small">I motsetning til C#, kan compileren gjør delvis inference av generic type parameters</p>
           </section>
         </section>
 
@@ -348,6 +323,7 @@
               <li>Installer <a href="https://github.com/moovweb/gvm#installing">gvm</a></li>
               <li>Installer Go v1.20</li>
               <li>Installer VSCode extension for Go</li>
+              <li>Github Copilot</li>
             </ul>
             <pre>
               <code data-noescape class="language-bash">git clone git@github.com:Forse/fagkveld-go.git</code>
