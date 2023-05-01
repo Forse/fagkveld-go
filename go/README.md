@@ -12,10 +12,8 @@ Her finner du instruksjoner for oppsett og gjennomgang av kode.
 		Go extension i VSCode vil be deg installere noen tools (bl. a. language server), 
 		<a href="https://github.com/golang/vscode-go/blob/master/docs/tools.md" target="_blank">gjør det evt manuelt</a>
 	</li>
-	<li>Github Copilot</li>
+	<li>Github Copilot for assistert læring</li>
 </ul>
-
-Erstatt eventuelt `linux-amd64` med din arkitektur. Tilgjengelige archives finnes på [go.dev/dl/](https://go.dev/dl/)
 
 ```bash
 wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
@@ -23,6 +21,8 @@ rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.20.3.linux-amd64.tar.gz
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.profile
 go version
 ```
+
+Erstatt eventuelt `linux-amd64` med din arkitektur. Tilgjengelige archives finnes på [go.dev/dl/](https://go.dev/dl/)
 
 ### Hello, world!
 
@@ -36,6 +36,14 @@ Et CLI som gjør analyse for å finne ut hvor stor docker context blir i bygging
 
 ```bash
 go run cmd/docker-ctx-analyze/main.go
+```
+
+### todo-api
+
+Et HTTP API for en todo-applikasjon.
+
+```bash
+go run cmd/todo-api/main.go
 ```
 
 ### Kjøre tester
