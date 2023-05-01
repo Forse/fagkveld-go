@@ -24,11 +24,10 @@
           <h2>Agenda</h2>
           <ul>
             <li>Intro</li>
-            <li>Litt i dybden</li>
-            <li>Hvorfor Go?</li>
-            <li>Bruksområde</li>
-            <li>Go vs X</li>
-            <li>Når bør <i>vi</i> bruke Go?</li>
+            <li>Liten gjennomgang av språket</li>
+            <li>Hva <i>kan</i> vi gjøre i Go?</li>
+            <li>Når <i>bør</i> vi bruke Go?</li>
+            <hr />
             <li>Oppsett av Go</li>
             <li>Ressurser</li>
           </ul>
@@ -42,18 +41,19 @@
               <li>Design påbegynt 2007, annonsert offentlig 2009, v1.0 i 2012</li>
               <li>Go er
                 <ul>
-                  <li>statically typed</li>
-                  <li>simple/easy to learn</li>
-                  <li>built for concurrency</li>
-                  <li>simple to deploy</li>
+                  <li>statically typed</li> <!-- check -->
+                  <li>simple/easy to learn</li> <!-- check -->
+                  <li>built for concurrency</li> <!-- TODO -->
+                  <li>simple to deploy</li> <!-- TODO, docker -->
                 </ul>
               </li>
             </ul>
           </section>
         </section>
 
+        <!-- GJENNOMGANG -->
         <section>
-          <h3>Litt i dybden...</h3>
+          <h3>Liten gjennomgang...</h3>
         </section>
 
         <section>
@@ -180,7 +180,7 @@
               </code>
             </pre>
             <p class="small"><b><code>(o operation)</code></b> kalles en <b>value</b> receiver</p>
-            <p class="small"><b><code>Add</code></b> vil få en kopi av en <b><code>operation</code></b></p>
+            <p class="small"><b><code>Add</code></b> vil få en <b>kopi</b> av en <b><code>operation</code></b></p>
           </section>
           <section>
             <p>Interfaces</p>
@@ -202,11 +202,12 @@
                 // --------------------------------
                 // En annen package
                 func main() {
-                    op := NewOperation(2, 1) // *operation
+                    op := interfaces.NewOperation(2, 1) // *operation
                     ComputeSumAndDiff(op, op)
                 }
+
                 // Interface type arguments er alltid pointers
-                func ComputeSumAndDiff(o1 Addition, o2 Subtraction) (int, int) {
+                func ComputeSumAndDiff(o1 interfaces.Addition, o2 interfaces.Subtraction) (int, int) {
                     return o1.Add(), o2.Subtract()
                 }
               </code>
@@ -266,7 +267,7 @@
           <section>
             <p>Generics</p>
             <pre class="sm">
-              <code data-trim data-noescape data-line-numbers class="language-golang">
+              <code data-trim data-noescape data-line-numbers data-ln-start-from="19" class="language-golang">
                 // ...
 
                 type Addition[T Number] interface {
@@ -296,22 +297,103 @@
                 // --------------------------------
                 // En annen package
                 func main() {
-                    op := NewOperation(2, 1)   // *operation
-                    ComputeSumAndDiff[int](op) // second type parameter is inferred
+                    op := generics.NewOperation(2, 1) // *operation
+                    ComputeSumAndDiff[int](op)        // second type parameter is inferred
                 }
 
                 // Addition og Subtraction blir "embedded" i AdditionAndSubtraction
-                type AdditionAndSubtraction[T Number] interface {
-                    Addition[T]
-                    Subtraction[T]
+                type AdditionAndSubtraction[T generics.Number] interface {
+                    generics.Addition[T]
+                    generics.Subtraction[T]
                 }
 
-                func ComputeSumAndDiff[T Number, O AdditionAndSubtraction[T]](o O) (T, T) {
+                func ComputeSumAndDiff[T generics.Number, O AdditionAndSubtraction[T]](o O) (T, T) {
                     return o.Add(), o.Subtract()
                 }
               </code>
             </pre>
             <p class="small">I motsetning til C#, kan compileren gjør delvis inference av generic type parameters</p>
+          </section>
+          <!-- Concurrency -->
+          <section>
+            <h2>Andre ting?</h2>
+          </section>
+        </section>
+        <section>
+          <h3>Runtime</h3>
+        </section>
+        <section>
+          <h3>Deployment</h3>
+        </section>
+        <!-- /GJENNOMGANG -->
+
+        <section>
+          <h2>Hva <i>kan</i> vi gjøre i Go?</h2>
+        </section>
+        <section>
+          <h3>CLI med <a href="https://github.com/charmbracelet/bubbletea" target="_blank">bubbletea</a></h3> <!-- TODO fix link -->
+          <section>
+            <div class="r-stack">
+              <img class="fragment fade-in-then-out" src="https://github.com/charmbracelet/bubbletea/raw/master/examples/chat/chat.gif" />
+              <img class="fragment fade-in-then-out" src="https://github.com/charmbracelet/bubbletea/raw/master/examples/package-manager/package-manager.gif" />
+              <img class="fragment fade-in" src="https://github.com/charmbracelet/bubbletea/raw/master/examples/list-fancy/list-fancy.gif" />
+            </div>
+            <p class="fragment fade-up">Lightweight, statically linked binaries</p>
+            <p class="fragment fade-up">Fast startup</p>
+          </section>
+        </section>
+        <section>
+          <h3>Embedded + WASM med <a href="https://tinygo.org/" target="_blank">TinyGo</a></h3> <!-- TODO fix link -->
+          <section>
+          </section>
+        </section>
+        <section>
+          <h3>APIer, backend development</h3>
+          <section>
+          </section>
+        </section>
+        <section>
+          <section>
+            <img src="cncf.png" />
+            <h3 class="fragment fade-up">DevOps, cloud native tooling</h3>
+          </section>
+        </section>
+        <section>
+          <h3>Databaser</h3>
+          <section>
+            <ul>
+              <li><a href="https://grafana.com/go/webinar/getting-started-with-grafana-lgtm-stack/" target="_blank">Grafana LGTM stack</a></li>
+              <li><a href="https://github.com/dgraph-io/badger" target="_blank">Badger KV DB</a></li>
+              <li><a href="https://github.com/hashicorp/memberlist" target="_blank">Memberlist - gossip protocol</a></li>
+            </ul>
+          </section>
+        </section>
+
+
+        <section>
+          <h2>Når <i>bør</i> vi bruke Go?</h2>
+          <section>
+            <h3>Cloud-native</h3>
+            <ul>
+              <li>Platform-teams</li>
+              <li>DevOps</li>
+              <li>SRE</li>
+              <li>Alt som er tett på containere, k8s</li>
+            </ul>
+            <p class="fragment fade-up">MEN - WASM anses av mange som "fremtiden", her er det mye Rust</p>
+          </section>
+          <section>
+            <h3>Microservices, backend?</h3>
+            <ul>
+              <li>Bare min mening</li>
+              <li>Ja, hvis
+                <ul>
+                  <li>greenfield</li>
+                  <li>masse tid og peng til rekruttering</li>
+                </ul>
+              </li>
+              <li>Bra runtime, shit typesystem <span style="opacity: 0.6">(til å være et relativt nytt språk)</span></li>
+            </ul>
           </section>
         </section>
 
@@ -320,7 +402,7 @@
           <section>
             <ul>
               <li>Bruk Linux/Mac (jeg bruker WSL2 Ubuntu) og VSCode</li>
-              <li>Installer <a href="https://github.com/moovweb/gvm#installing">gvm</a></li>
+              <li>Installer <a href="https://github.com/moovweb/gvm#installing" target="_blank">gvm</a></li>
               <li>Installer Go v1.20</li>
               <li>Installer VSCode extension for Go</li>
               <li>Github Copilot</li>
@@ -338,6 +420,14 @@
               <li><a href="https://go.dev/learn/">Get Started</a> - go.dev offisiell ressurs</li>
               <li><a href="https://gobyexample.com/">Go by Example</a> - eksempelbasert læring</li>
               <li><a href="https://exercism.org/tracks/go">Go - Exercism</a> - exercism track med 140 oppgaver (interaktivt)</li>
+            </ul>
+          </section>
+        </section>
+        <section>
+          <h2>Referanser</h2>
+          <section>
+            <ul>
+              <li><a href="https://planetscale.com/blog/generics-can-make-your-go-code-slower">Generics can make your Go code slower</a></li>
             </ul>
           </section>
         </section>

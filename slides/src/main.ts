@@ -14,6 +14,8 @@ deck.initialize({
     plugins: [Markdown, Highlight],
     hash: true,
     slideNumber: true,
+    width: 1152,
+    height: 840,
     // width: 3840,
     // height: 2160,
     // center: false,

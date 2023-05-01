@@ -1,4 +1,4 @@
-package valuereceivers
+package interfaces
 
 type operation struct {
 	Addition
@@ -25,20 +25,6 @@ func (o *operation) Add() int {
 }
 func (o *operation) Subtract() int {
 	return o.a - o.b
-}
-
-// --------------------------------
-// En annen package
-//
-//lint:ignore U1000 Example
-func main() {
-	op := NewOperation(2, 1) // *operation
-	ComputeSumAndDiff(op, op)
-}
-
-// Interface type arguments er alltid pointers
-func ComputeSumAndDiff(o1 Addition, o2 Subtraction) (int, int) {
-	return o1.Add(), o2.Subtract()
 }
 
 var _ Addition = (*operation)(nil)
