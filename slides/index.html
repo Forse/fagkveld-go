@@ -27,6 +27,7 @@
             <li>Liten gjennomgang av språket</li>
             <li>Hva <i>kan</i> vi gjøre i Go?</li>
             <li>Når <i>bør</i> vi bruke Go?</li>
+            <li>Performance</li>
             <hr />
             <li>Oppsett av Go</li>
             <li>Ressurser</li>
@@ -53,13 +54,12 @@
 
         <!-- GJENNOMGANG -->
         <section>
-          <h3>Liten gjennomgang...</h3>
+          <h3>Liten gjennomgang av språket...</h3>
         </section>
 
         <section>
-          <h3>Type-system</h3>
           <section>
-            <p>Funskjoner</p>
+            <p>Typesystem: <b>funskjoner</b></p>
             <pre>
               <code data-trim data-noescape data-line-numbers class="language-golang">
                 func add(a int, b int) int {
@@ -69,7 +69,7 @@
             </pre>
           </section>
           <section>
-            <p>Structs</p>
+            <p>Typesystem: <b>structs</b></p>
             <pre>
               <code data-trim data-noescape data-line-numbers class="language-golang">
                 type operation struct {
@@ -80,7 +80,7 @@
             </pre>
           </section>
           <section>
-            <p>Constructor finnes ikke</p>
+            <p>Typesystem: <b>constructor finnes ikke</b></p>
             <pre>
               <code data-trim data-noescape data-line-numbers class="language-golang">
                 func newOperation(a int, b int) *operation {
@@ -95,7 +95,7 @@
             <p class="small">& = ta referanse</p>
           </section>
           <section>
-            <p>camelCase = unexported</p>
+            <p>Typesystem: <b>camelCase = unexported</b></p>
             <pre>
               <code data-trim data-noescape data-line-numbers="1" class="language-golang">
                 func newOperation(a int, b int) *operation {
@@ -109,7 +109,7 @@
             <p class="small">Unexported = kan bare brukes <b>internt</b> i en <b>package</b></p>
           </section>
           <section>
-            <p>PascalCase = exported</p>
+            <p>Typesystem: <b>PascalCase = exported</b></p>
             <pre>
               <code data-trim data-noescape data-line-numbers="1" class="language-golang">
                 func NewOperation(a int, b int) *operation {
@@ -123,7 +123,7 @@
             <p class="small">Exported = kan brukes av <b>eksterne</b> <b>packages</b></p>
           </section>
           <section>
-            <p>Unexported struct, exported functions</p>
+            <p>Typesystem: <b>unexported struct, exported functions</b></p>
             <pre>
               <code data-trim data-noescape data-line-numbers="1,13" class="language-golang">
                 type operation struct {
@@ -146,7 +146,7 @@
             <p class="small"><b><code>operation.Add</code></b> kan brukes av eksterne, men feltene er skjulte</p>
           </section>
           <section>
-            <p>Pointer receivers</p>
+            <p>Typesystem: <b>pointer receivers</b></p>
             <pre>
               <code data-trim data-noescape data-line-numbers="8" class="language-golang">
                 func NewOperation(a int, b int) *operation {
@@ -162,9 +162,10 @@
               </code>
             </pre>
             <p class="small"><b><code>(o *operation)</code></b> kalles en <b>pointer</b> receiver</p>
+            <p class="small"><b>Funskjoner</b> blir til <b>metoder</b> når de har en receiver</p>
           </section>
           <section>
-            <p>Value receivers</p>
+            <p>Typesystem: <b>value receivers</b></p>
             <pre>
               <code data-trim data-noescape data-line-numbers="8" class="language-golang">
                 func NewOperation(a int, b int) *operation {
@@ -183,7 +184,7 @@
             <p class="small"><b><code>Add</code></b> vil få en <b>kopi</b> av en <b><code>operation</code></b></p>
           </section>
           <section>
-            <p>Interfaces</p>
+            <p>Typesystem: <b>interfaces</b></p>
             <pre class="sm">
               <code data-trim data-noescape data-line-numbers="1-6|8-13|15-23|*" class="language-golang">
                 type Addition interface {
@@ -213,9 +214,10 @@
               </code>
             </pre>
             <p class="small">Implementasjon av interface er <b>implisitt</b></p>
+            <p class="small">Interface som argument er en (fat - vtable) pointer (som kan være <b>nil</b>)</p>
           </section>
           <section>
-            <p>Explicit interface implementasjon?</p>
+            <p>Typesystem: <b>explicit interface implementasjon?</b></p>
             <pre class="sm">
               <code data-trim data-noescape data-line-numbers="15,16" class="language-golang">
                 type Addition interface {
@@ -239,7 +241,7 @@
             <p class="small">Variabel i globalt scope med discard får compileren til å verifisere interface implementasjon</p>
           </section>
           <section>
-            <p>Generics</p>
+            <p>Typesystem: <b>generics</b></p>
             <pre class="sm">
               <code data-trim data-noescape data-line-numbers class="language-golang">
                 // This package is 0.0.0 - experimental
@@ -265,8 +267,8 @@
             <p class="small">Generics ble introdusert i Go <b>1.18</b></p>
           </section>
           <section>
-            <p>Generics</p>
-            <pre class="sm">
+            <p>Typesystem: <b>generics</b></p>
+            <pre class="md">
               <code data-trim data-noescape data-line-numbers data-ln-start-from="19" class="language-golang">
                 // ...
 
@@ -290,8 +292,8 @@
             </pre>
           </section>
           <section>
-            <p>Generics</p>
-            <pre class="sm">
+            <p>Typesystem: <b>generics</b></p>
+            <pre class="md">
               <code data-trim data-noescape data-line-numbers class="language-golang">
                 // ...
                 // --------------------------------
@@ -314,9 +316,231 @@
             </pre>
             <p class="small">I motsetning til C#, kan compileren gjør delvis inference av generic type parameters</p>
           </section>
-          <!-- Concurrency -->
           <section>
-            <h2>Andre ting?</h2>
+            <p>Typesystem: <b>control flow</b></p>
+            <div class="r-stack">
+              <pre class="fragment fade-out" data-fragment-index="0">
+                <code data-trim data-noescape data-line-numbers class="language-golang">
+                  // if
+                  if a > b {
+                      return a
+                  } else if a &lt; b {
+                      return b
+                  } else {
+                      return 0
+                  }
+
+                  // switch
+                  switch a {
+                  case 1:
+                      return "one"
+                  case 2:
+                      return "two"
+                  default:
+                      return "many"
+                  }
+                </code>
+              </pre>
+              <pre class="fragment current-visible" data-fragment-index="0">
+                <code data-trim data-noescape data-line-numbers class="language-golang">
+                  // for
+                  for i := 0; i &lt; 10; i++ {
+                      fmt.Println(i)
+                  }
+                  // infinite loop
+                  for {
+
+                  }
+                  // range for loop
+                  for i, v := range a {
+                    fmt.Println("index: %d: value: %d", i, v)
+                  }
+                </code>
+              </pre>
+            </div>
+          </section>
+          <section>
+            <p>Typesystem: <b>container types</b></p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                // array - static size
+                var a [5]int
+                a[2] = 7
+
+                // slice - dynamic size
+                var s1 []int = a[1:4] // does not allocate
+                s1 = append(s1, 2, 3, 4) // may allocate
+
+                // different ways to create a slice
+                var s2 = []int{0, 1, 2, 3, 4, 5}
+                var s3 = make([]int, 3)
+
+                // map
+                m := make(map[string]int)
+                m["k1"] = 7
+                m["k2"] = 13
+              </code>
+            </pre>
+          </section>
+          <section>
+            <p>Typesystem: <b>closures</b></p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                // closure - function returning a function that captures a variable
+                func adder() func(int) int {
+                    sum := 0
+                    return func(x int) int {
+                        sum += x
+                        return sum
+                    }
+                }
+              </code>
+            </pre>
+          </section>
+          <section>
+            <p>Typesystem: <b>errors</b></p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                // functions can return multiple values, commonly errors
+                func f() (int, error) {
+                    return 0, errors.New("f: error")
+                }
+
+                // errors are commonly wrapped by downstream errors
+                func g() (int, error) {
+                    n, err := f()
+                    if err != nil {
+                        return 0, fmt.Errorf("g: error: %w", err)
+                    }
+                    return n + 1, nil
+                }
+              </code>
+            </pre>
+            <p class="small">Errors er vanlig <b>values</b>, ingen stacktraces bygget inn</p>
+            <p class="small">Flere verdier returneres som tuples. Disse er <i>ikke</i> unions</p>
+          </section>
+          <section data-transition="slide-in none-out">
+            <p>Typesystem: <b>concurrency - goroutines</b></p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                func f(from string) {
+                    for i := 0; i &lt; 3; i++ {
+                        fmt.Println(from, ":", i)
+                    }
+                }
+
+                func main() {
+                    f("direct")
+                    go f("goroutine")
+
+                    fmt.Println("done")
+                }
+              </code>
+            </pre>
+            <p class="small">En <b>goroutine</b> er en 'lightweight thread'</p>
+            <p class="small">Her vil vi se 'direct' : 1-3, så done (ingenting fra 'goroutine')</p>
+          </section>
+          <section data-transition="none-in slide-out">
+            <p>Typesystem: <b>concurrency - goroutines</b></p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers="11" class="language-golang">
+                func f(from string) {
+                    for i := 0; i &lt; 3; i++ {
+                        fmt.Println(from, ":", i)
+                    }
+                }
+
+                func main() {
+                    f("direct")
+                    go f("goroutine")
+
+                    time.Sleep(time.Second * 1)
+                    fmt.Println("done")
+                }
+              </code>
+            </pre>
+            <p class="small">Her vil vi også se logs fra 'goroutine'</p>
+          </section>
+          <section>
+            <p>Typesystem: <b>concurrency - channels</b></p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers="*|5|6|7|2|8|*" class="language-golang">
+                func f(c chan string) {
+                    c &lt;- "ping"
+                }
+                func main() {
+                    c := make(chan string)
+                    go f(c)
+                    msg := &lt;-c
+                    fmt.Println(msg) // ping
+                }
+              </code>
+            </pre>
+            <p class="small">En channel er som en kø, kan være buffered eller unbuffered. I dette tilfellet bruker vi unbuffered</p>
+          </section>
+          <section>
+            <p>Typesystem: <b>concurrency - channels</b></p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers="*|6" class="language-golang">
+                func f(c chan string) {
+                    c &lt;- "ping"
+                }
+                func main() {
+                    c := make(chan string, 1)
+                    msg := &lt;-c // fatal error: all goroutines are asleep - deadlock!
+                    go f(c)
+                    fmt.Println(msg)
+                }
+              </code>
+            </pre>
+            <p class="small">Receive blocker, men ingen kan sende meldinger</p>
+          </section>
+          <section>
+            <p>Typesystem: <b>concurrency - channels</b></p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers="*|2" class="language-golang">
+                func f(c chan string) {
+                  c &lt;- "ping" // fatal error: all goroutines are asleep - deadlock!
+                }
+                func main() {
+                  c := make(chan string)
+                  f(c)
+                  fmt.Println(&lt;-c)
+                }
+              </code>
+            </pre>
+            <p class="small">Send blocker, men ingen kan ta receive meldingen</p>
+          </section>
+          <section>
+            <p>Typesystem: <b>defer</b></p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                func SetPermissions() error {
+                    f, err := os.Open("file.txt")
+                    if err != nil {
+                      return err
+                    }
+                    defer f.Close()
+                    f.Chmod(0644)
+                    f.Chown(0, 0)
+                    return nil
+                }
+              </code>
+            </pre>
+            <p class="small"><b><code>f.Close()</code></b> vil kjøre rett før <b><code>return</code></b> statement</p>
+          </section>
+          <section>
+            <h2>Typesystem - andre ting?</h2>
+          </section>
+        </section>
+
+        <section>
+          <h3>Concurrency</h3>
+          <section>
+            <ul>
+              <li>"Green" threads - M:N threading model</li>
+              <li>Coordinate by communicating (les: channels)</li>
+            </ul>
           </section>
         </section>
         <section>
@@ -398,28 +622,68 @@
         </section>
 
         <section>
+          <h2>Performance</h2>
+        </section>
+        <section>
+          <h3>TechEmpower benchmarks - plaintext</h3>
+          <section>
+            <img src="te-bench-pt-top.png" />
+          </section>
+          <section>
+            <img src="te-bench-pt-chi.png" />
+          </section>
+        </section>
+        <section>
+          <h3>TechEmpower benchmarks - fortunes</h3>
+          <section>
+            <img src="te-bench-fo-top.png" />
+          </section>
+          <section>
+            <img src="te-bench-fo-chi.png" />
+          </section>
+        </section>
+        <section>
+          <h3>Generelt</h3>
+          <ul>
+            <li>Tilgang på value types (struct)</li>
+            <li>Low latency GC</li>
+            <li>Purpose built runtime for concurrency</li>
+            <li>Ingen (lett) tilgang til SIMD</li>
+            <li>Heller ingen auto-vektorisering?</li>
+            <li>Om du trenger interop (cgo) forandrer alt seg</li>
+          </ul>
+          <p>
+            Stort sett er optimalisering i Go det samme som i alle andre språk:
+            unngå dynamic allokering, cache-friendly datastrukturer, unngå unpredictable branches, unngå virtual calls og polymorphism
+          </p>
+        </section>
+
+        <section>
           <h2>Oppsett av go</h2>
           <section>
-            <ul>
-              <li>Bruk Linux/Mac (jeg bruker WSL2 Ubuntu) og VSCode</li>
-              <li>Installer <a href="https://github.com/moovweb/gvm#installing" target="_blank">gvm</a></li>
-              <li>Installer Go v1.20</li>
-              <li>Installer VSCode extension for Go</li>
-              <li>Github Copilot</li>
-            </ul>
-            <pre>
+            <pre class="xxl">
               <code data-noescape class="language-bash">git clone git@github.com:Forse/fagkveld-go.git</code>
             </pre>
+            <ul>
+              <li>Bruk Linux/Mac (jeg bruker WSL2 Ubuntu) og VSCode</li>
+              <li><a href="https://go.dev/doc/install" target="_blank">Installer Go v1.20</a></li> (eksempel finnes i README.md i '/go'-mappa)
+              <li>Installer <code>@recommended</code> extensions i VSCode</li>
+              <li>
+                Go extension i VSCode vil be deg installere noen tools (bl. a. language server).
+                <a href="https://github.com/golang/vscode-go/blob/master/docs/tools.md" target="_blank">Gjør det evt manuelt</a> hvis popup ikke dukker opp
+              </li>
+              <li>Github Copilot</li>
+            </ul>
           </section>
         </section>
         <section>
           <h2>Ressurser</h2>
           <section>
             <ul>
-              <li><a href="https://github.com/golang-standards/project-layout">Project layout</a> - "best practices" projectoppsett</li>
-              <li><a href="https://go.dev/learn/">Get Started</a> - go.dev offisiell ressurs</li>
-              <li><a href="https://gobyexample.com/">Go by Example</a> - eksempelbasert læring</li>
-              <li><a href="https://exercism.org/tracks/go">Go - Exercism</a> - exercism track med 140 oppgaver (interaktivt)</li>
+              <li><a href="https://github.com/golang-standards/project-layout" target="_blank">Project layout</a> - "best practices" projectoppsett</li>
+              <li><a href="https://go.dev/learn/" target="_blank">Get Started</a> - go.dev offisiell ressurs</li>
+              <li><a href="https://gobyexample.com/" target="_blank">Go by Example</a> - eksempelbasert læring</li>
+              <li><a href="https://exercism.org/tracks/go" target="_blank">Go - Exercism</a> - exercism track med 140 oppgaver (interaktivt)</li>
             </ul>
           </section>
         </section>
@@ -427,7 +691,12 @@
           <h2>Referanser</h2>
           <section>
             <ul>
-              <li><a href="https://planetscale.com/blog/generics-can-make-your-go-code-slower">Generics can make your Go code slower</a></li>
+              <li><a href="https://planetscale.com/blog/generics-can-make-your-go-code-slower" target="_blank">Generics can make your Go code slower</a> - av Planetscale</li>
+              <li><a href="https://dusted.codes/how-fast-is-really-aspnet-core" target="_blank">How fast is really ASP.NET Core</a> - av Dustin Morris</li>
+              <li><a href="https://www.youtube.com/watch?v=oV9rvDllKEg" target="_blank">Concurrency is not Parallelism</a> - av Rob Pike</li>
+              <li><a href="https://www.cockroachlabs.com/blog/the-cost-and-complexity-of-cgo/" target="_blank">The cost and complexity of Cgo</a> - av Cockroachlabs</li>
+              <li><a href="https://www.youtube.com/watch?v=-K11rY57K7k" target="_blank">Go scheduler: Implementing language with lightweight concurrency</a> - av Dmitry Vyukov</li>
+              <li><a href="https://fasterthanli.me/articles/lies-we-tell-ourselves-to-keep-using-golang" target="_blank">Lies we tell ourselves to keep using Golang</a> - av fasterthanlime</li>
             </ul>
           </section>
         </section>

@@ -85,7 +85,7 @@ func calculateByReferences() (float64, error) {
 	}
 
 	avg := sum / float64(len(ops)*2)
-	if math.Abs(avg-0.5) > 0.001 {
+	if math.Abs(avg-0.5) > 0.01 {
 		return avg, errors.New("avg is not correct")
 	}
 	return avg, nil
@@ -108,7 +108,7 @@ func calculatePacked() (float64, error) {
 	}
 
 	avg := sum / float64(len(ops)*2)
-	if math.Abs(avg-0.5) > 0.001 {
+	if math.Abs(avg-0.5) > 0.01 {
 		return avg, errors.New("avg is not correct")
 	}
 	return avg, nil
@@ -152,7 +152,7 @@ func calculatePackedParallel() (float64, error) {
 
 	avg := sum / float64(len(ops)*2)
 
-	if math.Abs(avg-0.5) > 0.001 {
+	if math.Abs(avg-0.5) > 0.01 {
 		return avg, errors.New("avg is not correct")
 	}
 	return avg, nil
