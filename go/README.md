@@ -20,6 +20,7 @@ wget https://go.dev/dl/go1.20.3.linux-amd64.tar.gz
 rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.20.3.linux-amd64.tar.gz
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.profile
 go version
+source ~/.profile
 ```
 
 Erstatt eventuelt `linux-amd64` med din arkitektur. Tilgjengelige archives finnes på [go.dev/dl/](https://go.dev/dl/)
@@ -30,23 +31,25 @@ Erstatt eventuelt `linux-amd64` med din arkitektur. Tilgjengelige archives finne
 go run cmd/hello/main.go
 ```
 
-### docker-ctx-analyze
+### Lab - docker-ctx-analyze
 
 Et CLI som gjør analyse for å finne ut hvor stor docker context blir i bygging av et container image.
+Se [cmd/docker-ctx-analyze/main.go](/go/cmd/docker-ctx-analyze/main.go)-filen for instruksjoner.
 
 ```bash
 go run cmd/docker-ctx-analyze/main.go
 ```
 
-### todo-api
+### Lab - todo-api
 
 Et HTTP API for en todo-applikasjon.
+Se [cmd/todo-api/main.go](/go/cmd/todo-api/main.go)-filen for instruksjoner.
 
 ```bash
 go run cmd/todo-api/main.go
 ```
 
-### Kjøre tester
+### Kjør alle tester
 
 ```bash
 go test ./...
