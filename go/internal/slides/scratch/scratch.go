@@ -1,14 +1,18 @@
 package main
 
-import "os"
+import "fmt"
 
-func SetPermissions() error {
-	f, err := os.Open("file.txt")
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	f.Chmod(0644)
-	f.Chown(0, 0)
-	return nil
+func f(c chan string) {
+	c <- "ping"
+}
+func main() {
+	c := make(chan string, 4)
+	f(c)
+	f(c)
+	f(c)
+	f(c)
+	fmt.Println(<-c)
+	fmt.Println(<-c)
+	fmt.Println(<-c)
+	fmt.Println(<-c)
 }

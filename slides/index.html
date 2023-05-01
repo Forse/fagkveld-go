@@ -58,6 +58,9 @@
         </section>
 
         <section>
+          <h3>Typesystem</h3>
+        </section>
+        <section>
           <section>
             <p>Typesystem: <b>funskjoner</b></p>
             <pre>
@@ -476,7 +479,7 @@
                 }
               </code>
             </pre>
-            <p class="small">En channel er som en kø, kan være buffered eller unbuffered. I dette tilfellet bruker vi unbuffered</p>
+            <p class="small">En channel er en FIFO kø, kan være <b>unbuffered</b> eller <b>buffered</b>. I dette tilfellet bruker vi <b>unbuffered</b></p>
           </section>
           <section>
             <p>Typesystem: <b>concurrency - channels</b></p>
@@ -486,14 +489,14 @@
                     c &lt;- "ping"
                 }
                 func main() {
-                    c := make(chan string, 1)
+                    c := make(chan string)
                     msg := &lt;-c // fatal error: all goroutines are asleep - deadlock!
                     go f(c)
                     fmt.Println(msg)
                 }
               </code>
             </pre>
-            <p class="small">Receive blocker, men ingen kan sende meldinger</p>
+            <p class="small">Receive <b>blocker</b>, og ingen kan sende meldinger</p>
           </section>
           <section>
             <p>Typesystem: <b>concurrency - channels</b></p>
@@ -509,7 +512,29 @@
                 }
               </code>
             </pre>
-            <p class="small">Send blocker, men ingen kan ta receive meldingen</p>
+            <p class="small">Send <b>blocker</b>, og ingen kan ta receive meldingen</p>
+          </section>
+          <section>
+            <p>Typesystem: <b>concurrency - channels</b></p>
+            <pre>
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                func f(c chan string) {
+                  c &lt;- "ping"
+                }
+                func main() {
+                  c := make(chan string, 4)
+                  f(c)
+                  f(c)
+                  f(c)
+                  f(c)
+                  fmt.Println(&lt;-c)
+                  fmt.Println(&lt;-c)
+                  fmt.Println(&lt;-c)
+                  fmt.Println(&lt;-c)
+                }
+              </code>
+            </pre>
+            <p class="small">En <b>buffered</b> channel gjør send-operasjoner mulig før det er noen aktive receivers</p>
           </section>
           <section>
             <p>Typesystem: <b>defer</b></p>
@@ -536,12 +561,13 @@
 
         <section>
           <h3>Concurrency</h3>
-          <section>
-            <ul>
-              <li>"Green" threads - M:N threading model</li>
-              <li>Coordinate by communicating (les: channels)</li>
-            </ul>
-          </section>
+          <ul>
+            <li>"Green" threads (goroutines) - M:N threading model</li>
+            <li>"Coordinate by communicating" (les: channels)</li>
+            <li>Lett å lage goroutine per subprossess/background worker/request/X</li>
+            <hr />
+            <li>goroutine vs Task/Promise</li>
+          </ul>
         </section>
         <section>
           <h3>Runtime</h3>
@@ -696,6 +722,7 @@
               <li><a href="https://www.youtube.com/watch?v=oV9rvDllKEg" target="_blank">Concurrency is not Parallelism</a> - av Rob Pike</li>
               <li><a href="https://www.cockroachlabs.com/blog/the-cost-and-complexity-of-cgo/" target="_blank">The cost and complexity of Cgo</a> - av Cockroachlabs</li>
               <li><a href="https://www.youtube.com/watch?v=-K11rY57K7k" target="_blank">Go scheduler: Implementing language with lightweight concurrency</a> - av Dmitry Vyukov</li>
+              <li><a href="https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/" target="_blank">What color is your function?</a> - av Bob Nystrom</li>
               <li><a href="https://fasterthanli.me/articles/lies-we-tell-ourselves-to-keep-using-golang" target="_blank">Lies we tell ourselves to keep using Golang</a> - av fasterthanlime</li>
             </ul>
           </section>
