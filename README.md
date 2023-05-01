@@ -2,7 +2,7 @@
 
 ### Go
 
-Se [go/README.md](/go/README.md). `go`-mappa inneholder
+Se [go/README.md](/go/). `go`-mappa inneholder
 
 * Oppsett av Go
 * Eksempel-kode brukt i slides
