@@ -31,6 +31,40 @@ Erstatt eventuelt `linux-amd64` med din arkitektur. Tilgjengelige archives finne
 go run cmd/hello/main.go
 ```
 
+### Øvelser - Exercism
+
+Exercism er en plattform for å lære seg språk. 
+Man kan løse små oppgaver gjennom VSCode ved hjelp av Exercism CLI,
+eller bare gjøre det i editor på web.
+
+* Logg inn på Exercism - jeg brukte Github-konto
+* [Join Go track](https://exercism.org/tracks/go) 
+* [Se instruksjoner for installasjon av CLI her](https://exercism.org/cli-walkthrough), eller følg nedenfor
+
+```bash
+wget https://github.com/exercism/cli/releases/download/v3.1.0/exercism-3.1.0-linux-x86_64.tar.gz
+tar -xf exercism-3.1.0-linux-x86_64.tar.gz
+mkdir -p ~/bin
+mv exercism ~/bin
+~/bin/exercism
+
+# Check if ~/bin is in path
+[[ ":$PATH:" == *":$HOME/bin:"* || ":$PATH:" == *":~/bin:"* ]] && echo "~/bin is in PATH" || echo "~/bin is not in PATH"
+
+// Add to path
+echo 'export PATH=~/bin:$PATH' >> ~/.bash_profile
+source ~/.bash_profile
+exercism
+# Token can be found on the settings page: https://exercism.org/settings/api_cli
+exercism configure --token=<insert-your-token>
+exercism download --exercise=hello-world --track=go
+cd ~/exercism/go/hello-world
+code .
+```
+
+Nå kan du løse oppgaven. Se terminal-vindu for submission av løsning.
+![Exercism og VSCode](/slides/public/exercism-helloworld.png)
+
 ### Lab - docker-ctx-analyze
 
 Et CLI som gjør analyse for å finne ut hvor stor docker context blir i bygging av et container image.
