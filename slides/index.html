@@ -421,6 +421,7 @@
             </pre>
             <p class="small">Errors er vanlig <b>values</b>, ingen stacktraces bygget inn</p>
             <p class="small">Flere verdier returneres som tuples. Disse er <i>ikke</i> unions</p>
+            <p class="small">Ikke noe exceptions! bare panic's, som ikke skal skje</p>
           </section>
           <section data-transition="slide-in none-out">
             <p>Typesystem: <b>concurrency - goroutines</b></p>
@@ -661,7 +662,26 @@
               <li>Rammeverk: gin, beego, fiber, echo, kit</li>
               <li>Routere: mux (archived), chi</li>
               <li>'Simplicity' gjennomsyrer alt - DI <i>containere</i> anbefales ikke</li>
+              <li><a href="https://github.com/go-kit/examples/tree/master/shipping" target="_blank">go-kit - shipping DDD eksempel</a></li>
             </ul>
+          </section>
+          <section>
+            <pre>
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                type TrackingID string
+
+                // Cargo is the central class in the domain model.
+                type Cargo struct {
+                    TrackingID         TrackingID
+                    Origin             location.UNLocode
+                    RouteSpecification RouteSpecification
+                    Itinerary          Itinerary
+                    Delivery           Delivery
+                }
+              </code>
+            </pre>
+            <p class="small">Hvem som helst kan konstruere <b><code>TrackingID</code></b> - "" er gyldig</p>
+            <p class="small">Samme gjelder <b><code>Cargo</code></b></p>
           </section>
         </section>
         <section>
