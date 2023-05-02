@@ -31,6 +31,10 @@ Erstatt eventuelt `linux-amd64` med din arkitektur. Tilgjengelige archives finne
 go run cmd/hello/main.go
 ```
 
+### Eksempler fra slides
+
+Se [/go/internal/slides](/go/internal/slides)-mappa for en del av eksempel-koden som gås gjennom i slides.
+
 ### Øvelser - Exercism
 
 Exercism er en plattform for å lære seg språk. 
@@ -65,7 +69,7 @@ code .
 Nå kan du løse oppgaven. Se terminal-vindu for submission av løsning.
 ![Exercism og VSCode](/slides/public/exercism-helloworld.png)
 
-### Lab - docker-ctx-analyze
+### Øvelse - docker-ctx-analyze
 
 Et CLI som gjør analyse for å finne ut hvor stor docker context blir i bygging av et container image.
 Se [cmd/docker-ctx-analyze/main.go](/go/cmd/docker-ctx-analyze/main.go)-filen for instruksjoner.
@@ -74,14 +78,20 @@ Se [cmd/docker-ctx-analyze/main.go](/go/cmd/docker-ctx-analyze/main.go)-filen fo
 go run cmd/docker-ctx-analyze/main.go
 ```
 
-### Lab - todo-api
+Hvis jeg får tid, skal jeg pushe en 'ferdig' implementasjon til branchen `completed/docker-ctx-analyze`
+
+### Øvelse - todo-api
 
 Et HTTP API for en todo-applikasjon.
 Se [cmd/todo-api/main.go](/go/cmd/todo-api/main.go)-filen for instruksjoner.
 
 ```bash
 go run cmd/todo-api/main.go
+# Hvis du har Docker
+docker build -t todo-api:latest .
 ```
+
+Hvis jeg får tid, skal jeg pushe en 'ferdig' implementasjon til branchen `completed/todo-api`
 
 ### Kjør alle tester
 
