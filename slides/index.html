@@ -42,10 +42,10 @@
               <li>Design påbegynt 2007, annonsert offentlig 2009, v1.0 i 2012</li>
               <li>Go er
                 <ul>
-                  <li>statically typed</li> <!-- check -->
-                  <li>simple/easy to learn</li> <!-- check -->
-                  <li>built for concurrency</li> <!-- TODO -->
-                  <li>simple to deploy</li> <!-- TODO, docker -->
+                  <li>statically typed</li>
+                  <li>simple/easy to learn</li>
+                  <li>built for concurrency</li>
+                  <li>simple to deploy</li>
                 </ul>
               </li>
             </ul>
@@ -567,13 +567,43 @@
             <li>Lett å lage goroutine per subprossess/background worker/request/X</li>
             <hr />
             <li>goroutine vs Task/Promise</li>
+            <li>Task.All / Promise.all ???</li>
           </ul>
         </section>
         <section>
-          <h3>Runtime</h3>
+          <h3>Compiler, runtime</h3>
+          <ul>
+            <li>gc - .go -> SSA (IL) -> machine code (x86-64, x86-32, arm)</li>
+            <li>Statically linked (by default)</li>
+            <li>Enkel syntax = rask compiler</li>
+            <li>Low latency GC (litt værre på throughput)</li>
+            <li>'What color is your function' - <b>løst!</b> (preemption)</li>
+            <li>PGO i preview for 1.20</li>
+            <li>Stack-basert calling convention (<a href="https://go.googlesource.com/proposal/+/refs/changes/78/248178/1/design/40724-register-calling.md" target="_blank">proposal for register-basert</a>)</li>
+            <li>Liten overhead - 20-30mb vs 100mb i .NET (sist jeg testet)</li>
+            <li>Rask startup (siden det er AOT)</li>
+          </ul>
         </section>
         <section>
-          <h3>Deployment</h3>
+          <h3>Tooling</h3>
+          <ul>
+            <li>Flere lokale versjoner av go toolchain støttet (trenger ikke gvm)</li>
+            <li>Package manager (go get)</li>
+            <li>Test runner (go test)</li>
+            <li>Test coverage (go test -cover)</li>
+            <li>Doc generator (go doc)</li>
+            <li>Benchmarking (go test -bench=)</li>
+            <li>Profiling (go test -cpuprofile cpu.prof ...)</li>
+            <li>Formatter (go fmt)</li>
+            <li>Linter/static analysis (golint, go vet)</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Build og deploy</h3>
+          <ul>
+            <li>Veldig lett</li>
+            <li><b><code>FROM scratch</code></b> i Dockerfile</li>
+          </ul>
         </section>
         <!-- /GJENNOMGANG -->
 
@@ -593,13 +623,45 @@
           </section>
         </section>
         <section>
-          <h3>Embedded + WASM med <a href="https://tinygo.org/" target="_blank">TinyGo</a></h3> <!-- TODO fix link -->
-          <section>
-          </section>
+          <h3><b><a href="https://tinygo.org/" target="_blank">TinyGo</a></b></h3> <!-- TODO fix link -->
+          <ul>
+            <li>LLVM compiler backend</li>
+            <li>Custom runtime library (allocator, scheduler)</li>
+            <hr />
+            <li>Microcontrollers</li>
+            <li>WASM/WASI</li>
+          </ul>
+        </section>
+        <section>
+          <h3>Native apps (mobil)</h3>
+          <ul>
+            <li><b>gobind</b> - language bindings for Java, Objective-C (Go SDKs/libraries)</li>
+            <pre class="sm">
+              <code data-trim data-noescape data-line-numbers class="language-bash">
+                $ go get -d golang.org/x/mobile/example/bind/...
+                ...
+                $ gomobile bind -o app/hello.aar -target=android golang.org/x/mobile/example/bind/hello
+              </code>
+            </pre>
+            <hr />
+            <li><b>gomobile</b> - native compilation</li>
+            <pre class="sm">
+              <code data-trim data-noescape data-line-numbers class="language-bash">
+                $ go get -d golang.org/x/mobile/example/basic
+                ...
+                $ gomobile build -target=android -androidapi 19 golang.org/x/mobile/example/basic
+              </code>
+            </pre>
+          </ul>
         </section>
         <section>
           <h3>APIer, backend development</h3>
           <section>
+            <ul>
+              <li>Rammeverk: gin, beego, fiber, echo, kit</li>
+              <li>Routere: mux (archived), chi</li>
+              <li>'Simplicity' gjennomsyrer alt - DI <i>containere</i> anbefales ikke</li>
+            </ul>
           </section>
         </section>
         <section>
@@ -613,8 +675,15 @@
           <section>
             <ul>
               <li><a href="https://grafana.com/go/webinar/getting-started-with-grafana-lgtm-stack/" target="_blank">Grafana LGTM stack</a></li>
+              <li><a href="https://github.com/prometheus/prometheus" target="_blank">Prometheus, Thanos ...</a></li>
+              <li><a href="https://github.com/kelindar/column" target="_blank">Column</a></li>
               <li><a href="https://github.com/dgraph-io/badger" target="_blank">Badger KV DB</a></li>
+              <li><a href="https://www.cockroachlabs.com/blog/why-go-was-the-right-choice-for-cockroachdb/" target="_blank">Cockroach DB</a></li>
+              <li><a href="https://github.com/pingcap/tidb" target="_blank">TiDB</a></li>
+              <li><a href="https://github.com/dgraph-io/dgraph" target="_blank">dgraph</a></li>
+              <hr />
               <li><a href="https://github.com/hashicorp/memberlist" target="_blank">Memberlist - gossip protocol</a></li>
+              <li><a href="https://github.com/hashicorp/raft" target="_blank">Raft - consensus protocol</a></li>
             </ul>
           </section>
         </section>
@@ -636,8 +705,11 @@
             <h3>Microservices, backend?</h3>
             <ul>
               <li>Bare min mening</li>
-              <li>Ja, hvis greenfield</li>
-              <li>Bra runtime, shit typesystem <span style="opacity: 0.6">(til å være et relativt nytt språk)</span></li>
+              <li>Ja, hvis greenfield, og man har kompetansen</li>
+              <li>Jo mer backend/operasjonelt jo bedre - f. eks. platform teams</li>
+              <hr />
+              <li>Bra runtime, tooling, ecosystem - men middelmådig typesystem <span style="opacity: 0.6">(til å være et relativt nytt språk)</span></li>
+              <li>DDD? "Make invalid states unrepresentable?"</li>
             </ul>
           </section>
         </section>
@@ -668,6 +740,7 @@
           <ul>
             <li>Tilgang på value types (struct)</li>
             <li>Low latency GC</li>
+            <li>Escape analysis gjør at heap allokeringer unngås</li>
             <li>Purpose built runtime for concurrency</li>
             <li>Ingen (lett) tilgang til SIMD</li>
             <li>Heller ingen auto-vektorisering?</li>
@@ -726,10 +799,15 @@
               <li><a href="https://planetscale.com/blog/generics-can-make-your-go-code-slower" target="_blank">Generics can make your Go code slower</a> - av Planetscale</li>
               <li><a href="https://dusted.codes/how-fast-is-really-aspnet-core" target="_blank">How fast is really ASP.NET Core</a> - av Dustin Morris</li>
               <li><a href="https://www.youtube.com/watch?v=oV9rvDllKEg" target="_blank">Concurrency is not Parallelism</a> - av Rob Pike</li>
-              <li><a href="https://www.cockroachlabs.com/blog/the-cost-and-complexity-of-cgo/" target="_blank">The cost and complexity of Cgo</a> - av Cockroachlabs</li>
+              <li><a href="https://www.cockroachlabs.com/blog/the-cost-and-complexity-of-cgo/" target="_blank">The cost and complexity of Cgo</a> - av Cockroach Labs</li>
+              <li><a href="https://www.cockroachlabs.com/blog/why-go-was-the-right-choice-for-cockroachdb/" target="_blank">Why Go was the right choice for CockroachDB</a></li>
               <li><a href="https://www.youtube.com/watch?v=-K11rY57K7k" target="_blank">Go scheduler: Implementing language with lightweight concurrency</a> - av Dmitry Vyukov</li>
               <li><a href="https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/" target="_blank">What color is your function?</a> - av Bob Nystrom</li>
               <li><a href="https://fasterthanli.me/articles/lies-we-tell-ourselves-to-keep-using-golang" target="_blank">Lies we tell ourselves to keep using Golang</a> - av fasterthanlime</li>
+              <li><a href="https://github.com/golang/go/wiki/Mobile" target="_blank">Mobile apps in Go</a> - Go docs</li>
+              <li><a href="https://github.com/tinygo-org/tinygo" target="_blank">TinyGo</a></li>
+              <li><a href="https://eli.thegreenplace.net/2019/go-compiler-internals-adding-a-new-statement-to-go-part-1/" target="_blank">Go compiler internals</a> - av Eli Bendersky</li>
+              <li><a href="https://medium.com/servicetitan-engineering/go-vs-c-part-2-garbage-collection-9384677f86f1" target="_blank">Go vs C#, part 2: Garbage Collection</a> - av Alex Yakunin</li>
             </ul>
           </section>
         </section>
