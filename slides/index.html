@@ -559,7 +559,6 @@
             <h2>Typesystem - andre ting?</h2>
           </section>
         </section>
-
         <section>
           <h3>Concurrency</h3>
           <ul>
@@ -569,6 +568,7 @@
             <hr />
             <li>goroutine vs Task/Promise</li>
             <li>Task.All / Promise.all ???</li>
+            <li><a href="https://www.datadoghq.com/blog/engineering/introducing-glommio/" target="_blank">Thread-per-core arkitektur?</a></li>
           </ul>
         </section>
         <section>
@@ -609,7 +609,7 @@
         <!-- /GJENNOMGANG -->
 
         <section>
-          <h2>Hva <i>kan</i> vi gjøre i Go?</h2>
+          <h2>Hva <i>kan</i> eller <i>bør</i> vi utvikle i Go?</h2>
         </section>
         <section>
           <h3>CLI med <a href="https://github.com/charmbracelet/bubbletea" target="_blank">bubbletea</a></h3> <!-- TODO fix link -->
@@ -619,53 +619,128 @@
               <img class="fragment fade-in-then-out" src="https://github.com/charmbracelet/bubbletea/raw/master/examples/package-manager/package-manager.gif" />
               <img class="fragment fade-in" src="https://github.com/charmbracelet/bubbletea/raw/master/examples/list-fancy/list-fancy.gif" />
             </div>
-            <p class="fragment fade-up">Lightweight, statically linked binaries</p>
-            <p class="fragment fade-up">Fast startup</p>
+          </section>
+          <section>
+            <ul>
+              <li>Lightweight, statically linked binaries</li>
+              <li>Rask startup</li>
+              <li>Bra biblioteker (spesielt i cloud-native/devops space)</li>
+              <hr />
+              <li>Go er veldig linux-centric</li>
+              <li>I en .NET/JVM/X-sjappe har det ikke nødvendigvis noe for seg</li>
+            </ul>
+          </section>
+        </section>
+        <section>
+          <h3>Cloud-native</h3>
+          <section>
+            <ul>
+              <li>Platform-teams</li>
+              <li>DevOps</li>
+              <li>SRE</li>
+              <li>Alt som er tett på containere, k8s</li>
+              <hr />
+              <li>Veldig bra økosystem</li>
+              <li>Erstatter mye Python (omtrent like enkelt, men skalerer bedre)</li>
+            </ul>
+            <p class="fragment fade-up small">MEN - WASM anses av mange som "fremtiden" ift orkestrering og packaging, her er det mye Rust</p>
+          </section>
+          <section>
+            <img src="cncf.png" />
           </section>
         </section>
         <section>
           <h3><b><a href="https://tinygo.org/" target="_blank">TinyGo</a></b></h3> <!-- TODO fix link -->
-          <ul>
-            <li>LLVM compiler backend</li>
-            <li>Custom runtime library (allocator, scheduler)</li>
-            <hr />
-            <li>Microcontrollers</li>
-            <li>WASM/WASI</li>
-          </ul>
+          <section>
+            <img src="tinygo.png" />
+          </section>
+          <section>
+            <ul>
+              <li>LLVM compiler backend</li>
+              <li>Custom runtime library (allocator, scheduler)</li>
+              <hr />
+              <li>Microcontrollers</li>
+              <li>WASM/WASI</li>
+              <li>C interop faktisk ikke krise</li>
+              <li>Virker fortsatt ganske niche (WASM er ganske pointless foreløpig)</li>
+            </ul>
+          </section>
         </section>
         <section>
           <h3>Native apps (mobil)</h3>
-          <ul>
-            <li><b>gobind</b> - language bindings for Java, Objective-C (Go SDKs/libraries)</li>
-            <pre class="sm">
+          <section>
+            <ul>
+              <li><b>gobind</b> - language bindings for Java, Objective-C (Go SDKs/libraries)</li>
+              <pre class="sm">
+                <code data-trim data-noescape data-line-numbers class="language-bash">
+                  $ go get -d golang.org/x/mobile/example/bind/...
+                  ...
+                  $ gomobile bind -o app/hello.aar -target=android golang.org/x/mobile/example/bind/hello
+                </code>
+              </pre>
+              <hr />
+              <li><b>gomobile</b> - native compilation</li>
+              <pre class="sm">
+                <code data-trim data-noescape data-line-numbers class="language-bash">
+                  $ go get -d golang.org/x/mobile/example/basic
+                  ...
+                  $ gomobile build -target=android -androidapi 19 golang.org/x/mobile/example/basic
+                </code>
+              </pre>
+              <p class="small">Usikkert om disse er well-maintained... (experimental)</p>
+            </ul>
+          </section>
+          <section>
+            <img src="fyne.png" />
+          </section>
+          <section>
+            <pre>
               <code data-trim data-noescape data-line-numbers class="language-bash">
-                $ go get -d golang.org/x/mobile/example/bind/...
-                ...
-                $ gomobile bind -o app/hello.aar -target=android golang.org/x/mobile/example/bind/hello
+                $ fyne package -os android -appID com.example.myapp -icon mobileIcon.png
+                $ fyne package -os ios -appID com.example.myapp -icon mobileIcon.png
               </code>
             </pre>
             <hr />
-            <li><b>gomobile</b> - native compilation</li>
-            <pre class="sm">
+            <pre>
               <code data-trim data-noescape data-line-numbers class="language-bash">
-                $ go get -d golang.org/x/mobile/example/basic
-                ...
-                $ gomobile build -target=android -androidapi 19 golang.org/x/mobile/example/basic
+                $ adb install myapp.apk
+                $ fyne package -os iossimulator -appID com.example.myapp -icon mobileIcon.png && \
+                    xcrun simctl install booted myapp.app
               </code>
             </pre>
-          </ul>
+          </section>
         </section>
         <section>
-          <h3>APIer, backend development</h3>
+          <h3>Backend development</h3>
           <section>
             <ul>
               <li>Rammeverk: gin, beego, fiber, echo, kit</li>
               <li>Routere: mux (archived), chi</li>
-              <li>'Simplicity' gjennomsyrer alt - DI <i>containere</i> anbefales ikke</li>
-              <li><a href="https://github.com/go-kit/examples/tree/master/shipping" target="_blank">go-kit - shipping DDD eksempel</a></li>
+              <hr />
+              <li>'Simplicity' er fellesnevner
+                <ul>
+                  <li>Lite magi (ikke snakk om DI containers)</li>
+                  <li>Minimalisme og lite abstraksjon</li>
+                  <li>= en del boilerplate (but its simple)</li>
+                </ul>
+              </li>
             </ul>
           </section>
           <section>
+            <p>Brukes av ...</p>
+            <ul>
+              <li>Google</li>
+              <li>Netflix</li>
+              <li>Uber</li>
+              <li>Twitch</li>
+              <li>Dropbox</li>
+              <li>Cloudflare</li>
+              <li>Microsoft</li>
+              <li>...</li>
+            </ul>
+          </section>
+          <section>
+            <p>Ikke spesielt bra typesystem, eks: <a href="https://github.com/go-kit/examples/tree/master/shipping" target="_blank">go-kit - shipping DDD eksempel</a></p>
             <pre>
               <code data-trim data-noescape data-line-numbers class="language-golang">
                 type TrackingID string
@@ -683,11 +758,90 @@
             <p class="small">Hvem som helst kan konstruere <b><code>TrackingID</code></b> - "" er gyldig</p>
             <p class="small">Samme gjelder <b><code>Cargo</code></b></p>
           </section>
-        </section>
-        <section>
           <section>
-            <img src="cncf.png" />
-            <h3 class="fragment fade-up">DevOps, cloud native tooling</h3>
+            <pre>
+              <code data-trim data-noescape data-line-numbers="*|1-3|5-14|16-22" class="language-golang">
+                type trackingID struct {
+                    value string
+                }
+
+                var ErrEmptyTrackingID = errors.New("empty tracking id")
+
+                func NewTrackingID(value string) (trackingID, error) {
+                    if value == "" {
+                        return trackingID{}, ErrEmptyTrackingID
+                    }
+                    return trackingID{
+                        value: value,
+                    }, nil
+                }
+
+                func (id trackingID) String() string {
+                    return id.value
+                }
+
+                func (id trackingID) Value() string {
+                    return id.value
+                }
+
+                type Cargo struct {
+                    TrackingID trackingID
+                }
+              </code>
+            </pre>
+          </section>
+          <section>
+            <pre>
+              <code data-trim data-noescape data-line-numbers class="language-golang">
+                func main() {
+                    trackingID, err := cargo.NewTrackingID("123")
+                    if err != nil {
+                        if errors.Is(err, cargo.ErrEmptyTrackingID) {
+                            fmt.Println("empty tracking id")
+                            return
+                        }
+                        panic(err)
+                    }
+                    trackingID2, err := cargo.NewTrackingID("123")
+                    if err != nil {
+                        if errors.Is(err, cargo.ErrEmptyTrackingID) {
+                            fmt.Println("empty tracking id 2")
+                            return
+                        }
+                        panic(err)
+                    }
+
+                    // var id shipID = trackingID // Fortunately, this doesn't compile
+
+                    fmt.Printf("tracking id: %s\n", trackingID)              // 123
+                    fmt.Printf("tracking id 2: %s\n", trackingID2)           // 123
+                    fmt.Printf("are equal: %t\n", trackingID == trackingID2) // true
+                    // fmt.Printf("are equal: %t\n", trackingID == "123")    // doesn't compile
+                }
+              </code>
+            </pre>
+          </section>
+          <section>
+            <p>Konklusjon</p>
+            <ul>
+              <li>Som .NET utvikler - jeg vil ha bedre typesystem
+                <ul>
+                  <li>Discriminated unions</li>
+                  <li>Lettere enkapsulering</li>
+                </ul>
+              </li>
+              <li>Bedre typesystem = bedre uttrykt domene</li>
+              <li>Ikke gi meg <a href="https://martinfowler.com/bliki/AnemicDomainModel.html" target="_blank">anemic domain model</a> og <a href="https://refactoring.guru/smells/primitive-obsession" target="_blank">primitive obsession</a></li>
+              <li>DevOps/"teknisk" domene, kanskje OK</li>
+              <li>God tooling, build perf, simplicity <i>ikke</i> nok</li>
+              <hr />
+              <li>Gi meg heller Rust
+                <ul>
+                  <li>10x bedre typesystem</li>
+                  <li>Bedre perf (zero cost abstractions, ingen GC)</li>
+                </ul>
+              </li>
+            </ul>
           </section>
         </section>
         <section>
@@ -697,20 +851,36 @@
               <li><a href="https://grafana.com/go/webinar/getting-started-with-grafana-lgtm-stack/" target="_blank">Grafana LGTM stack</a></li>
               <li><a href="https://github.com/prometheus/prometheus" target="_blank">Prometheus, Thanos ...</a></li>
               <li><a href="https://github.com/kelindar/column" target="_blank">Column</a></li>
-              <li><a href="https://github.com/dgraph-io/badger" target="_blank">Badger KV DB</a></li>
               <li><a href="https://www.cockroachlabs.com/blog/why-go-was-the-right-choice-for-cockroachdb/" target="_blank">Cockroach DB</a></li>
               <li><a href="https://github.com/pingcap/tidb" target="_blank">TiDB</a></li>
+              <li><a href="https://github.com/dgraph-io/badger" target="_blank">Badger KV DB</a></li>
               <li><a href="https://github.com/dgraph-io/dgraph" target="_blank">dgraph</a></li>
               <hr />
               <li><a href="https://github.com/hashicorp/memberlist" target="_blank">Memberlist - gossip protocol</a></li>
               <li><a href="https://github.com/hashicorp/raft" target="_blank">Raft - consensus protocol</a></li>
             </ul>
           </section>
+          <section>
+            <ul>
+              <li>Høy kvalitet på biblioteker</li>
+              <li>Syscalls og OS APIer veldig godt modellert (for *nix)</li>
+              <li>Bra distribution/deployment story</li>
+              <li>Definitivt mulig å skrive performant Go</li>
+            </ul>
+          </section>
         </section>
 
 
-        <section>
+        <!-- <section>
           <h2>Når <i>bør</i> vi bruke Go?</h2>
+          <section>
+            <h3>CLIer</h3>
+            <ul>
+              <li>Lightweight, statically linked binaries</li>
+              <li>Rask startup</li>
+              <li>Bra biblioteker</li>
+            </ul>
+          </section>
           <section>
             <h3>Cloud-native</h3>
             <ul>
@@ -732,7 +902,7 @@
               <li>DDD? "Make invalid states unrepresentable?"</li>
             </ul>
           </section>
-        </section>
+        </section> -->
 
         <section>
           <h2>Performance</h2>
@@ -764,7 +934,7 @@
             <li>Purpose built runtime for concurrency</li>
             <li>Ingen (lett) tilgang til SIMD</li>
             <li>Heller ingen auto-vektorisering?</li>
-            <li>Om du trenger interop (cgo) forandrer alt seg</li>
+            <li>Om du trenger interop (cgo) går ting tregt</li>
           </ul>
           <p>
             Stort sett er optimalisering i Go det samme som i alle andre språk:
@@ -815,7 +985,7 @@
         <section>
           <h2>Referanser</h2>
           <section>
-            <ul>
+            <ul style="font-size: 2rem">
               <li><a href="https://planetscale.com/blog/generics-can-make-your-go-code-slower" target="_blank">Generics can make your Go code slower</a> - av Planetscale</li>
               <li><a href="https://dusted.codes/how-fast-is-really-aspnet-core" target="_blank">How fast is really ASP.NET Core</a> - av Dustin Morris</li>
               <li><a href="https://www.youtube.com/watch?v=oV9rvDllKEg" target="_blank">Concurrency is not Parallelism</a> - av Rob Pike</li>
@@ -828,6 +998,7 @@
               <li><a href="https://github.com/tinygo-org/tinygo" target="_blank">TinyGo</a></li>
               <li><a href="https://eli.thegreenplace.net/2019/go-compiler-internals-adding-a-new-statement-to-go-part-1/" target="_blank">Go compiler internals</a> - av Eli Bendersky</li>
               <li><a href="https://medium.com/servicetitan-engineering/go-vs-c-part-2-garbage-collection-9384677f86f1" target="_blank">Go vs C#, part 2: Garbage Collection</a> - av Alex Yakunin</li>
+              <li><a href="https://www.datadoghq.com/blog/engineering/introducing-glommio/" target="_blank">Introducing Glommio, a Thread-per-Core Crate for Rust & Linux</a> - av Glauber Costa</li>
             </ul>
           </section>
         </section>
