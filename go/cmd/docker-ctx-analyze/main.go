@@ -16,11 +16,11 @@ import (
 // Similar to the `docker build` command, it should default to the current working directory if no context path is given.
 // It should print the size of the context in bytes to stdout.
 
-func main() {
-	errorLogger := log.New(os.Stderr, "ERROR: ", 0)
-	infoLogger := log.New(os.Stdout, "INFO: ", 0)
+var errorLogger *log.Logger = log.New(os.Stderr, "ERROR: ", 0)
+var infoLogger *log.Logger = log.New(os.Stdout, "INFO: ", 0)
 
-	config, err := getConfig(errorLogger)
+func main() {
+	config, err := getConfig()
 	if err != nil {
 		errorLogger.Fatalf("could not read configuration: %s", err)
 	}
@@ -44,19 +44,37 @@ func main() {
 		errorLogger.Fatalf("could not read .dockerignore: %s", err)
 	}
 
-	ignorePatterns, err := readDockerignore(config)
+	err = readDockerignore(config)
 	if err != nil {
 		errorLogger.Fatalf("could not read .dockerignore: %s", err)
 	}
-	ignorePatterns = trimBuildFilesFromIgnoredPatterns(ignorePatterns, config)
 
-	infoLogger.Printf("ignore patterns: %v", ignorePatterns)
+	infoLogger.Printf("ignore patterns: %v", config.ignorePatterns)
 
-	var ignoredSize int64 = 0
-	var includedSize int64 = 0
-	var files = 0
+	if err != nil {
+		errorLogger.Fatalf("could not read context directory: %s", err)
+	}
 
-	err = filepath.Walk(config.context, func(path string, info os.FileInfo, err error) error {
+	analysis, err := analyzeDockerContext(config)
+	if err != nil {
+		errorLogger.Fatalf("could not complete analysis: %s", err)
+	}
+
+	infoLogger.Printf("files: %d", analysis.files)
+	infoLogger.Printf("context size: %d bytes", analysis.includedSize)
+	infoLogger.Printf("ignored size: %d bytes", analysis.ignoredSize)
+}
+
+type analysis struct {
+	ignoredSize  int64
+	includedSize int64
+	files        int64
+}
+
+func analyzeDockerContext(config *config) (*analysis, error) {
+	analysis := &analysis{}
+
+	err := filepath.Walk(config.context, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			errorLogger.Fatalf("could not read file: %s", err)
 		}
@@ -71,67 +89,65 @@ func main() {
 		}
 
 		relativePath = filepath.ToSlash(relativePath)
-		isMatch, err := patternmatcher.Matches(relativePath, ignorePatterns)
+		isMatch, err := patternmatcher.Matches(relativePath, config.ignorePatterns)
 		if err != nil {
 			return err
 		}
 
 		infoLogger.Printf("file: %s", relativePath)
 
-		files += 1
+		analysis.files += 1
 		if isMatch {
-			ignoredSize += info.Size()
+			analysis.ignoredSize += info.Size()
 		} else {
-			includedSize += info.Size()
+			analysis.includedSize += info.Size()
 		}
 
 		return nil
 	})
 
 	if err != nil {
-		errorLogger.Fatalf("could not read context directory: %s", err)
+		return nil, err
 	}
 
-	infoLogger.Printf("files: %d", files)
-	infoLogger.Printf("context size: %d bytes", includedSize)
-	infoLogger.Printf("ignored size: %d bytes", ignoredSize)
+	return analysis, nil
 }
 
 // From https://github.com/docker/cli/blob/f7600fb5390973c29315024ac2a9c0777735e7ee/cli/command/image/build/dockerignore.go#L13-L26
-func readDockerignore(config *config) ([]string, error) {
-	var excludes []string
-
+func readDockerignore(config *config) error {
 	f, err := os.Open(filepath.Join(config.context, ".dockerignore"))
 	switch {
 	case os.IsNotExist(err):
-		return excludes, nil
+		return nil
 	case err != nil:
-		return nil, err
+		return err
 	}
 	defer f.Close()
 
-	return dockerignore.ReadAll(f)
-}
+	config.ignorePatterns, err = dockerignore.ReadAll(f)
+	if err != nil {
+		return err
+	}
 
-// From https://github.com/docker/cli/blob/f7600fb5390973c29315024ac2a9c0777735e7ee/cli/command/image/build/dockerignore.go#L31-L42
-func trimBuildFilesFromIgnoredPatterns(excludes []string, config *config) []string {
-	if keep, _ := patternmatcher.Matches(".dockerignore", excludes); keep {
-		excludes = append(excludes, "!.dockerignore")
+	if keep, _ := patternmatcher.Matches(".dockerignore", config.ignorePatterns); keep {
+		config.ignorePatterns = append(config.ignorePatterns, "!.dockerignore")
 	}
 
 	dockerfile := filepath.ToSlash(config.dockerfile)
-	if keep, _ := patternmatcher.Matches(dockerfile, excludes); keep {
-		excludes = append(excludes, "!"+dockerfile)
+	if keep, _ := patternmatcher.Matches(dockerfile, config.ignorePatterns); keep {
+		config.ignorePatterns = append(config.ignorePatterns, "!"+dockerfile)
 	}
-	return excludes
+
+	return nil
 }
 
 type config struct {
-	dockerfile string
-	context    string
+	dockerfile     string
+	context        string
+	ignorePatterns []string
 }
 
-func getConfig(errorLogger *log.Logger) (*config, error) {
+func getConfig() (*config, error) {
 	dockerfileFlag := flag.String("f", "./Dockerfile", "Dockerfile filepath - defaults to './Dockerfile'")
 
 	flag.Parse()
@@ -147,7 +163,8 @@ func getConfig(errorLogger *log.Logger) (*config, error) {
 	}
 
 	return &config{
-		dockerfile: *dockerfileFlag,
-		context:    dockerContextPathFlag,
+		dockerfile:     *dockerfileFlag,
+		context:        dockerContextPathFlag,
+		ignorePatterns: make([]string, 0),
 	}, nil
 }

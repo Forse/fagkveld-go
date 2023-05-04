@@ -2,5 +2,6 @@
   "recommendations": [
     "golang.go",
     "editorconfig.editorconfig",
+    "ms-azuretools.vscode-docker",
   ]
 }
