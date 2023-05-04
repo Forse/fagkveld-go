@@ -91,7 +91,7 @@ go run cmd/todo-api/main.go
 docker build -t todo-api:latest .
 ```
 
-Hvis jeg får tid, skal jeg pushe en 'ferdig' implementasjon til branchen `completed/todo-api`
+Se [completed/docker-ctx-analyze](https://github.com/Forse/fagkveld-go/blob/completed/docker-ctx-analyze/go/cmd/docker-ctx-analyze/main.go) branchen for en halvferdig løsning.
 
 ### Kjør alle tester
 
