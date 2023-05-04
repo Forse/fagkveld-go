@@ -3,12 +3,20 @@ package main
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/moby/buildkit/frontend/dockerfile/dockerignore"
 	"github.com/moby/patternmatcher"
+
+	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/stopwatch"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 // This CLI should figure out how large the build context is for a given Dockerfile and context dir.
@@ -17,62 +25,168 @@ import (
 // It should print the size of the context in bytes to stdout.
 
 var errorLogger *log.Logger = log.New(os.Stderr, "ERROR: ", 0)
-var infoLogger *log.Logger = log.New(os.Stdout, "INFO: ", 0)
+
+type errMsg error
+type argsParsed struct{ config *config }
+type configurationRead struct{ config *config }
+type analysisCompleted struct{ analysis *analysis }
 
 func main() {
+	app := tea.NewProgram(initialModel())
+
+	go backgroundWorker(app.Send)
+
+	if _, err := app.Run(); err != nil {
+		errorLogger.Fatalf("could not run analysis: %s", err)
+	}
+}
+
+func backgroundWorker(sendMessage func(msg tea.Msg)) {
 	config, err := getConfig()
 	if err != nil {
-		errorLogger.Fatalf("could not read configuration: %s", err)
+		sendMessage(fmt.Errorf("could not read configuration: %s", err))
 	}
 
-	infoLogger.Printf("analyzing context based on Dockerfile='%s', context directory='%s'", config.dockerfile, config.context)
+	sendMessage(argsParsed{config: config})
 
 	_, err = os.Stat(config.context)
 	if err != nil {
-		errorLogger.Fatalf("could not read context directory: %s", err)
+		sendMessage(fmt.Errorf("could not read context directory: %s", err))
 	}
 
 	_, err = os.Stat(config.dockerfile)
 	if err != nil {
-		errorLogger.Fatalf("could not read Dockerfile: %s", err)
-	}
-
-	dockerIgnorePath := filepath.Join(config.context, ".dockerignore")
-
-	_, err = os.Stat(dockerIgnorePath)
-	if err != nil {
-		errorLogger.Fatalf("could not read .dockerignore: %s", err)
+		sendMessage(fmt.Errorf("could not read Dockerfile: %s", err))
 	}
 
 	err = readDockerignore(config)
 	if err != nil {
-		errorLogger.Fatalf("could not read .dockerignore: %s", err)
+		sendMessage(fmt.Errorf("could not read .dockerignore: %s", err))
 	}
 
-	infoLogger.Printf("ignore patterns: %v", config.ignorePatterns)
-
-	if err != nil {
-		errorLogger.Fatalf("could not read context directory: %s", err)
-	}
+	sendMessage(configurationRead{config: config})
 
 	analysis, err := analyzeDockerContext(config)
 	if err != nil {
-		errorLogger.Fatalf("could not complete analysis: %s", err)
+		sendMessage(fmt.Errorf("could not complete analysis: %s", err))
 	}
 
-	infoLogger.Printf("files: %d", analysis.files)
-	infoLogger.Printf("context size: %d bytes", analysis.includedSize)
-	infoLogger.Printf("ignored size: %d bytes", analysis.ignoredSize)
+	sendMessage(analysisCompleted{analysis: analysis})
+}
+
+type model struct {
+	stopwatch stopwatch.Model
+	spinner   spinner.Model
+	config    *config
+	analysis  *analysis
+	err       error
+	quitting  bool
+}
+
+func initialModel() model {
+	spin := spinner.New()
+	spin.Spinner = spinner.Dot
+	spin.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+
+	timer := stopwatch.NewWithInterval(time.Millisecond)
+
+	return model{spinner: spin, stopwatch: timer}
+}
+
+func (m model) Init() tea.Cmd {
+	return tea.Batch(m.spinner.Tick, m.stopwatch.Init())
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	cmds := make([]tea.Cmd, 0)
+
+	updateSpinner := func() {
+		var cmd tea.Cmd
+		m.spinner, cmd = m.spinner.Update(msg)
+		cmds = append(cmds, cmd)
+	}
+
+	updateTimer := func() {
+		var cmd tea.Cmd
+		m.stopwatch, cmd = m.stopwatch.Update(msg)
+		cmds = append(cmds, cmd)
+	}
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "q", "esc", "ctrl+c":
+			m.quitting = true
+			return m, tea.Quit
+		default:
+			break
+		}
+
+	case errMsg:
+		m.err = msg
+		return m, tea.Quit
+
+	case argsParsed:
+		m.config = msg.config
+		updateTimer()
+		updateSpinner()
+
+	case configurationRead:
+		m.config = msg.config
+		updateTimer()
+		updateSpinner()
+
+	case analysisCompleted:
+		m.analysis = msg.analysis
+		m.stopwatch.Stop()
+		updateTimer()
+		updateSpinner()
+		cmds = append(cmds, tea.Quit)
+
+	default:
+		updateTimer()
+		updateSpinner()
+	}
+
+	return m, tea.Batch(cmds...)
+}
+
+func (m model) View() string {
+	if m.err != nil {
+		return m.err.Error()
+	}
+
+	var str string
+	if m.analysis == nil {
+		str += fmt.Sprintf("\n   %s Analyzing docker context...press q to quit", m.spinner.View())
+		str += fmt.Sprintf("\n      Elapsed time: %s\n\n", m.stopwatch.View())
+	} else {
+		//lint:ignore S1039 For alignment
+		str += fmt.Sprintf("\n   ✅ Analysis done!")
+		str += fmt.Sprintf("\n      Elapsed time: %s\n\n", m.stopwatch.View())
+
+		str += fmt.Sprintf("   Files: %d\n", m.analysis.includedFiles)
+		str += fmt.Sprintf("   Context size: %s\n", humanize.Bytes(m.analysis.includedSize))
+		str += fmt.Sprintf("   Ignored size: %s\n", humanize.Bytes(m.analysis.ignoredSize))
+	}
+
+	if m.quitting {
+		return str + "\n"
+	}
+	return str
 }
 
 type analysis struct {
-	ignoredSize  int64
-	includedSize int64
-	files        int64
+	ignoredSize   uint64
+	includedSize  uint64
+	includedFiles uint64
+	ignoredFiles  uint64
 }
 
 func analyzeDockerContext(config *config) (*analysis, error) {
 	analysis := &analysis{}
+
+	time.Sleep(1 * time.Second)
 
 	err := filepath.Walk(config.context, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -94,13 +208,12 @@ func analyzeDockerContext(config *config) (*analysis, error) {
 			return err
 		}
 
-		infoLogger.Printf("file: %s", relativePath)
-
-		analysis.files += 1
 		if isMatch {
-			analysis.ignoredSize += info.Size()
+			analysis.ignoredSize += uint64(info.Size())
+			analysis.ignoredFiles += 1
 		} else {
-			analysis.includedSize += info.Size()
+			analysis.includedSize += uint64(info.Size())
+			analysis.includedFiles += 1
 		}
 
 		return nil
