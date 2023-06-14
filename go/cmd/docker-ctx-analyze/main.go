@@ -186,8 +186,6 @@ type analysis struct {
 func analyzeDockerContext(config *config) (*analysis, error) {
 	analysis := &analysis{}
 
-	time.Sleep(1 * time.Second)
-
 	err := filepath.Walk(config.context, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			errorLogger.Fatalf("could not read file: %s", err)
