@@ -2,5 +2,7 @@
   "recommendations": [
     "golang.go",
     "editorconfig.editorconfig",
+    "humao.rest-client",
+    "ms-azuretools.vscode-docker"
   ]
 }
