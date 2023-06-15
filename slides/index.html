@@ -580,7 +580,7 @@
             <li>Low latency GC (litt værre på throughput)</li>
             <li>'What color is your function' - <b>løst!</b> (preemption)</li>
             <li>PGO i preview for 1.20</li>
-            <li>Stack-basert calling convention (<a href="https://go.googlesource.com/proposal/+/refs/changes/78/248178/1/design/40724-register-calling.md" target="_blank">proposal for register-basert</a>)</li>
+            <li>Register-basert calling convention (siden 1.16)</li>
             <li>Liten overhead - 20-30mb vs 100mb i .NET (sist jeg testet)</li>
             <li>Rask startup (siden det er AOT)</li>
           </ul>
@@ -597,14 +597,43 @@
             <li>Profiling (go test -cpuprofile cpu.prof ...)</li>
             <li>Formatter (go fmt)</li>
             <li>Linter/static analysis (golint, go vet)</li>
+            <hr />
+            <li>VSCode med Go extension funker veldig bra</li>
           </ul>
         </section>
         <section>
           <h3>Build og deploy</h3>
           <ul>
             <li>Veldig lett</li>
-            <li><b><code>FROM scratch</code></b> i Dockerfile</li>
           </ul>
+          <pre>
+            <code data-trim data-noescape data-line-numbers class="language-dockerfile">
+              FROM golang:1.20 AS build
+              RUN useradd -u 1001 -m todo-api
+
+              WORKDIR /app
+
+              # Fetch dependencies
+              COPY go.mod go.sum ./
+              RUN go mod download
+              RUN go mod verify
+
+              # Build API
+              COPY . ./
+              RUN CGO_ENABLED=0 GOOS=linux go build -o /api cmd/todo-api/main.go
+
+              FROM scratch
+
+              COPY --from=build /etc/passwd /etc/passwd
+              USER 1001
+
+              COPY --from=build /api /api
+
+              EXPOSE 3000
+
+              ENTRYPOINT ["/api"]
+            </code>
+          </pre>
         </section>
         <!-- /GJENNOMGANG -->
 
@@ -716,6 +745,7 @@
             <ul>
               <li>Rammeverk: gin, beego, fiber, echo, kit</li>
               <li>Routere: mux (archived), chi</li>
+              <li>JSON: innebygd (field annotations)</li>
               <hr />
               <li>'Simplicity' er fellesnevner
                 <ul>
@@ -740,7 +770,7 @@
             </ul>
           </section>
           <section>
-            <p>Ikke spesielt bra typesystem, eks: <a href="https://github.com/go-kit/examples/tree/master/shipping" target="_blank">go-kit - shipping DDD eksempel</a></p>
+            <p>Typesystem? eks: <a href="https://github.com/go-kit/examples/tree/master/shipping" target="_blank">go-kit - shipping DDD eksempel</a></p>
             <pre>
               <code data-trim data-noescape data-line-numbers class="language-golang">
                 type TrackingID string
@@ -824,23 +854,16 @@
           <section>
             <p>Konklusjon</p>
             <ul>
-              <li>Som .NET utvikler - jeg vil ha bedre typesystem
-                <ul>
-                  <li>Discriminated unions</li>
-                  <li>Lettere enkapsulering</li>
-                </ul>
+              <li>DevOps/"teknisk" domene - veldig bra</li>
+              <li>God tooling, build perf, simplicity</li>
+              <li>
+                <a href="https://martinfowler.com/bliki/AnemicDomainModel.html" target="_blank">Anemic domain model</a> og
+                <a href="https://refactoring.guru/smells/primitive-obsession" target="_blank">primitive obsession</a>
               </li>
-              <li>Bedre typesystem = bedre uttrykt domene</li>
-              <li>Ikke gi meg <a href="https://martinfowler.com/bliki/AnemicDomainModel.html" target="_blank">anemic domain model</a> og <a href="https://refactoring.guru/smells/primitive-obsession" target="_blank">primitive obsession</a></li>
-              <li>DevOps/"teknisk" domene, kanskje OK</li>
-              <li>God tooling, build perf, simplicity <i>ikke</i> nok</li>
+              <li>Kan være tungvindt å enkapsulere (packages er eneste 'boundary')</li>
+              <li>Skulle likt å se mer zero-cost og determinisme gitt mye bruk i systems/DevOps</li>
               <hr />
-              <li>Gi meg heller Rust
-                <ul>
-                  <li>10x bedre typesystem</li>
-                  <li>Bedre perf (zero cost abstractions, ingen GC)</li>
-                </ul>
-              </li>
+              <li>IMO et steg i riktig retning</li>
             </ul>
           </section>
         </section>
@@ -930,7 +953,7 @@
           <ul>
             <li>Tilgang på value types (struct)</li>
             <li>Low latency GC</li>
-            <li>Escape analysis gjør at heap allokeringer unngås</li>
+            <li>Escape analysis gjør at heap allokeringer <i>kan</i> unngås</li>
             <li>Purpose built runtime for concurrency</li>
             <li>Ingen (lett) tilgang til SIMD</li>
             <li>Heller ingen auto-vektorisering?</li>
@@ -967,7 +990,7 @@
           <h2>Ressurser</h2>
           <section>
             <ul>
-              <li><a href="https://github.com/golang-standards/project-layout" target="_blank">Project layout</a> - "best practices" projectoppsett</li>
+              <li><a href="https://boyter.org/posts/how-to-start-go-project-2023/" target="_blank">How to start a Go project in 2023</a> - Ben Boyter</li>
               <li><a href="https://go.dev/learn/" target="_blank">Get Started</a> - go.dev offisiell ressurs</li>
               <li><a href="https://gobyexample.com/" target="_blank">Go by Example</a> - eksempelbasert læring (god referanse)</li>
               <li><a href="https://exercism.org/tracks/go" target="_blank">Go - Exercism</a> - exercism track med 140 oppgaver (interaktivt)</li>
@@ -999,6 +1022,8 @@
               <li><a href="https://eli.thegreenplace.net/2019/go-compiler-internals-adding-a-new-statement-to-go-part-1/" target="_blank">Go compiler internals</a> - av Eli Bendersky</li>
               <li><a href="https://medium.com/servicetitan-engineering/go-vs-c-part-2-garbage-collection-9384677f86f1" target="_blank">Go vs C#, part 2: Garbage Collection</a> - av Alex Yakunin</li>
               <li><a href="https://www.datadoghq.com/blog/engineering/introducing-glommio/" target="_blank">Introducing Glommio, a Thread-per-Core Crate for Rust & Linux</a> - av Glauber Costa</li>
+              <li><a href="https://www.uber.com/en-NO/blog/how-we-saved-70k-cores-across-30-mission-critical-services/" target="_blank">How We Saved 70K Cores Across 30 Mission-Critical Services</a> - av Uber</li>
+              <li><a href="https://menno.io/posts/golang-register-calling/" target="_blank">Faster software through register based calling</a> - menno</li>
             </ul>
           </section>
         </section>

@@ -7,7 +7,7 @@ Se [go/README.md](/go/). `go`-mappa inneholder
 * Oppsett av Go
 * Eksempel-kode brukt i slides
 * `docker-ctx-analyze` CLI
-* TODO: `todo-api` HTTP API
+* `todo-api` HTTP API
 
 ### Slides
 

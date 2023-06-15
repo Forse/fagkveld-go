@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"fagkveld/internal/todo-api/todos"
+	tododb "fagkveld/internal/todo-api/todos/db"
 	"fmt"
 	"log"
 	"net/http"
@@ -22,6 +24,8 @@ import (
 // with some best practices applied for running in a containerized environment.
 // Add the actual APIs to learn how to build HTTP APIs in Go.
 // Start in the router function.
+
+// A CreateTodo handler has been made and registered, feel free to continue from there.
 
 func main() {
 	// Using builtin logger
@@ -77,8 +81,13 @@ func router(logger *log.Logger) (*chi.Mux, error) {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Healthy"))
 	})
+
+	db := tododb.NewDB()
+
+	r.Post("/todos", todos.CreateTodo(db))
 
 	err := chi.Walk(r, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
 		logger.Printf("INFO: route: %s %s\n", method, route)
